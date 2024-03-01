@@ -1,0 +1,7 @@
+Last Modified Date & Time: 12/03/2022 10:42:53
+
+PSoC Project Template: PSoC Project Template.cydwr
+	cy_boot [v6.0] to [v6.10]
+	LIN_Dynamic [v5.0] to [v6.0]
+
+
