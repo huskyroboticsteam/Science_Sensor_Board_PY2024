@@ -12,8 +12,8 @@
 
 #include <stdio.h>
 #include "main.h"
-#include "Temp_CAN.h"
-#include "Temp_FSM.h"
+#include "CAN_Stuff.h"
+#include "FSM_Stuff.h"
 #include "HindsightCAN/CANLibrary.h"
 
 extern char txData[TX_DATA_SIZE];

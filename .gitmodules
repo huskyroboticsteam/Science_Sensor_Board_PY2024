@@ -1,3 +1,3 @@
-[submodule "PSoC Project Template.cydsn/HindsightCAN"]
-	path = PSoC Project Template.cydsn/HindsightCAN
+[submodule "Science Sensor Board.cydsn/HindsightCAN"]
+	path = Science Sensor Board.cydsn/HindsightCAN
 	url = https://github.com/huskyroboticsteam/HindsightCAN.git

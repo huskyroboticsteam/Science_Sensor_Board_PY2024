@@ -20,6 +20,7 @@
 #define ERROR_WRONG_MODE      0x10
 #define ERROR_INVALID_MODE    0x11
 #define ERROR_INVALID_TTC     0x12
+#define ERROR_INVALID_PACKET  0x13
 
 int ReadCAN(CANPacket *receivedPacket);
 int ProcessCAN(CANPacket* receivedPacket, CANPacket* packetToSend);
