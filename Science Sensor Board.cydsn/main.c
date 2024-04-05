@@ -55,6 +55,7 @@ int main(void)
     
     for(;;)
     {
+        Print("Hello World");
         err = 0;
         switch(GetState()) {
             case(UNINIT):
@@ -102,7 +103,7 @@ void Initialize(void) {
     
     LED_DBG_Write(0);
     
-    InitCAN(0x4, (int)address);
+    // InitCAN(0x4, (int)address);
     Timer_Period_Reset_Start();
 
     isr_Button_1_StartEx(Button_1_Handler);
