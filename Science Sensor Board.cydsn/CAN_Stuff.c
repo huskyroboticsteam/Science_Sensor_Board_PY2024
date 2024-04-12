@@ -13,8 +13,9 @@
 #include <stdio.h>
 #include "main.h"
 #include "CAN_Stuff.h"
-#include "FSM_Stuff.h"
+#include "Sensor_Stuff.h"
 #include "HindsightCAN/CANLibrary.h"
+#include "HindsightCAN/CANScience.h"
 
 extern char txData[TX_DATA_SIZE];
 extern uint8 address;
@@ -27,33 +28,33 @@ int ProcessCAN(CANPacket* receivedPacket, CANPacket* packetToSend) {
     int32_t data = 0;
     int err = 0;
     
-    switch(packageID){
-        // Board-specific packets
-        case(ID_MOTOR_UNIT_MODE_SEL):
-            data = GetModeFromPacket(receivedPacket);
-            
-            if(data == MODE1) {
-                SetModeTo(MODE1);
-                // initialize MODE1
-            } else {
-                err = ERROR_INVALID_MODE;
-            }
-            break;
-            
+    switch(packageID){            
         // Common Packets
         case(ID_ESTOP):
             Print("\r\n\r\nSTOP\r\n\r\n");
-            // stop all movement
-            GotoUninitState();
             err = ESTOP_ERR_GENERAL;
             break;
         
         case(ID_TELEMETRY_PULL):            
             switch(DecodeTelemetryType(receivedPacket))
-            {
-                // USE CONSTANTS FOR CASES
-                case(0):
-                    data = 105;
+            {                
+                case(CAN_SCIENCE_SENSOR_TEMPERATURE):
+                    data = ReadSensorTemperature();
+                    break;
+                case(PACKET_TELEMETRY_SENSOR2):
+                    data = 0; // TODO
+                    break;
+                case(CAN_SCIENCE_SENSOR_MOISTURE):
+                    data = ReadSensorHumidity();
+                    break;
+                case(PACKET_TELEMETRY_SENSOR4):
+                    data = 0; // TODO
+                    break;
+                case(PACKET_TELEMETRY_SENSOR5):
+                    data = 0; // TODO
+                    break;
+                case(PACKET_TELEMETRY_SENSOR6):
+                    data = 0; // TODO
                     break;
                 default:
                     err = ERROR_INVALID_TTC;

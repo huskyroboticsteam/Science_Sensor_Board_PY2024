@@ -17,7 +17,7 @@
 #include "main.h"
 #include "cyapicallbacks.h"
 #include "CAN_Stuff.h"
-#include "FSM_Stuff.h"
+#include "Sensor_Stuff.h"
 #include "HindsightCAN/CANLibrary.h"
 
 // LED stuff
@@ -50,36 +50,18 @@ CY_ISR(Button_1_Handler) {
 
 int main(void)
 { 
+    Print("Hello World\r\n");
     Initialize();
     int err;
     
     for(;;)
     {
-        Print("Hello World");
         err = 0;
-        switch(GetState()) {
-            case(UNINIT):
-                SetStateTo(CHECK_CAN);
-                break;
-            case(CHECK_CAN):
-                if (!PollAndReceiveCANPacket(&can_recieve)) {
-                    LED_CAN_Write(ON);
-                    CAN_time_LED = 0;
-                    err = ProcessCAN(&can_recieve, &can_send);
-                }
-                if (GetMode() == MODE1)
-                    SetStateTo(DO_MODE1);
-                else 
-                    SetStateTo(CHECK_CAN);
-                break;
-            case(DO_MODE1):
-                // mode 1 tasks
-                SetStateTo(CHECK_CAN);
-                break;
-            default:
-                err = ERROR_INVALID_STATE;
-                SetStateTo(UNINIT);
-                break;
+        
+        if (!PollAndReceiveCANPacket(&can_recieve)) {
+            LED_CAN_Write(ON);
+            CAN_time_LED = 0;
+            err = ProcessCAN(&can_recieve, &can_send);
         }
         
         if (err) DisplayErrorCode(err);
@@ -88,22 +70,22 @@ int main(void)
             DebugPrint(DBG_UART_UartGetByte());
         }
         
-        CyDelay(100);
+        CyDelay(10);
     }
 }
 
 void Initialize(void) {
     CyGlobalIntEnable; /* Enable global interrupts. LED arrays need this first */
     
-    address = getSerialAddress();
+    address = 0; // TODO replace with science sensor address
     
     DBG_UART_Start();
-    sprintf(txData, "Dip Addr: %x \r\n", address);
+    sprintf(txData, "Address: %x \r\n", address);
     Print(txData);
     
     LED_DBG_Write(0);
     
-    // InitCAN(0x4, (int)address);
+    InitCAN(DEVICE_GROUP_SCIENCE, (int)address);
     Timer_Period_Reset_Start();
 
     isr_Button_1_StartEx(Button_1_Handler);
@@ -112,31 +94,30 @@ void Initialize(void) {
 
 void DebugPrint(char input) {
     switch(input) {
-        case 'f':
-            sprintf(txData, "Mode: %x State:%x \r\n", GetMode(), GetState());
+        case 't':
+            sprintf(txData, "Temp: %li", ReadSensorTemperature());
             break;
-        case 'x':
-            sprintf(txData, "bruh\r\n");
+        case 'h':
+            sprintf(txData, "Moist: %li", ReadSensorHumidity());
+            break;
+        case 'c':
+            sprintf(txData, "CO: %li", ReadSensorCO());
+            break;
+        case 'd':
+            sprintf(txData, "CO2: %li", ReadSensorCO2());
+            break;
+        case 'o':
+            sprintf(txData, "O2: %li", ReadSensorO2());
+            break;
+        case 'm':
+            sprintf(txData, "CH4: %li", ReadSensorCH4());
             break;
         default:
-            sprintf(txData, "what\r\n");
+            sprintf(txData, "what");
             break;
     }
     Print(txData);
-}
-
-int getSerialAddress() {
-    int address = 0;
-    
-    if (DIP1_Read()==0) address += 1;
-    if (DIP2_Read()==0) address += 2;
-    if (DIP3_Read()==0) address += 4;
-    if (DIP4_Read()==0) address += 8;
-    
-    if (address == 0)
-        address = DEVICE_SERIAL_TELEM_LOCALIZATION;
-
-    return address;
+    Print("\r\n");
 }
 
 void DisplayErrorCode(uint8_t code) {    

@@ -14,8 +14,8 @@
 #include "cyapicallbacks.h"
 #include <stdint.h>
         
-#define ON  1
-#define OFF 0
+#define ON  0
+#define OFF 1
 
 #define TX_DATA_SIZE            (100u)
 
