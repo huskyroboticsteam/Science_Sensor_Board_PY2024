@@ -50,7 +50,7 @@ CY_ISR(Button_1_Handler) {
 
 int main(void)
 { 
-    Print("Hello World\r\n");
+    printf("Hello World\r\n");
     Initialize();
     int err;
     
