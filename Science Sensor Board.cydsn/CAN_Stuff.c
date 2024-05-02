@@ -70,7 +70,6 @@ int ProcessCAN(CANPacket* receivedPacket, CANPacket* packetToSend) {
             break;
             
         default: //recieved Packet with non-valid ID
-            // could be due to corruption, don't uninit
             return ERROR_INVALID_PACKET;
     }
     

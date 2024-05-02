@@ -13,8 +13,6 @@
 #include "cyapicallbacks.h"
 #include "Sensor_Stuff.h"
 
-#define TIMEOUT 20
-
 int32 ReadSensorTemperature() {
     // TODO
     return 0;
@@ -40,20 +38,41 @@ int32 ReadSensorCH4() {
     return 0;
 }
 
-int32 ReadSensorO2(uint8 reg, uint16* val) {
+int32 ReadSensorO2() {
+    int16 val;
+    readReg16(SCD41_ADDR, 0, &val);
+    return val;
+}
+
+uint8 readReg16(uint8 addr, uint8 reg, uint16* val) {
     uint8 b1, b2;
     I2C_I2CMasterClearStatus(); //clear the garbage
 
-	I2C_I2CMasterSendStart(DEVICE_ADDR, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
+	I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
 	I2C_I2CMasterWriteByte(reg, TIMEOUT);
 	I2C_I2CMasterSendStop(TIMEOUT);
 	
-	I2C_I2CMasterSendStart(DEVICE_ADDR, I2C_I2C_READ_XFER_MODE, TIMEOUT);
+	I2C_I2CMasterSendStart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
 	I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, &b2, TIMEOUT);
-   I2C_I2CMasterReadByte(I2C_I2C_NAK_DATA, &b1, TIMEOUT);
+    I2C_I2CMasterReadByte(I2C_I2C_NAK_DATA, &b1, TIMEOUT);
     
     int err = I2C_I2CMasterSendStop(TIMEOUT);
     *val = ((uint16) b2 << 8) | b1;
 	return err;
+}
+
+uint8 writeReg16(uint8 addr, uint8 reg, uint16 val) {
+    uint8 b1, b2;
+    b1 = val & 0xFF;
+    b2 = val >> 8;
+    I2C_I2CMasterClearStatus(); //clear the garbage
+    
+    I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
+	I2C_I2CMasterWriteByte(reg, TIMEOUT);
+    
+    I2C_I2CMasterWriteByte(b2, TIMEOUT);
+    I2C_I2CMasterWriteByte(b1, TIMEOUT);
+    
+    return I2C_I2CMasterSendStop(TIMEOUT);
 }
 /* [] END OF FILE */
