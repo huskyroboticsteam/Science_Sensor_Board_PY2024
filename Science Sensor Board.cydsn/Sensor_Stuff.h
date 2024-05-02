@@ -18,6 +18,9 @@ int32 ReadSensorHumidity();
 int32 ReadSensorCO();
 int32 ReadSensorCO2();
 int32 ReadSensorCH4();
-int32 ReadSensorO2();
+int32 ReadSensorO2(uint8 reg, uint16* val);
+
+#define DEVICE_ADDR 0x73
+
 
 /* [] END OF FILE */
