@@ -39,12 +39,12 @@ int32 ReadSensorCH4() {
 }
 
 int32 ReadSensorO2() {
-    int16 val;
-    readReg16(SCD41_ADDR, 0, &val);
+    uint16 val;
+    readReg16(SCD41_ADDR, REG, &val);
     return val;
 }
 
-uint8 readReg16(uint8 addr, uint8 reg, uint16* val) {
+uint8 readReg16(uint8 addr, uint16 reg, uint16* val) {
     uint8 b1, b2;
     I2C_I2CMasterClearStatus(); //clear the garbage
 
@@ -61,7 +61,7 @@ uint8 readReg16(uint8 addr, uint8 reg, uint16* val) {
 	return err;
 }
 
-uint8 writeReg16(uint8 addr, uint8 reg, uint16 val) {
+uint8 writeReg16(uint8 addr, uint16 reg, uint16 val) {
     uint8 b1, b2;
     b1 = val & 0xFF;
     b2 = val >> 8;
