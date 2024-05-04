@@ -10,6 +10,7 @@
  * ========================================
 */
 #include <project.h>
+#include "main.h"
 #include "cyapicallbacks.h"
 #include "Sensor_Stuff.h"
 
@@ -41,6 +42,9 @@ int32 ReadSensorCH4() {
 int32 ReadSensorO2() {
     uint16 val;
     readReg16(SCD41_ADDR, REG, &val);
+    
+    char buffer[10];
+    DBG_UART_UartPutString(itoa(val, buffer, 10));
     return val;
 }
 
