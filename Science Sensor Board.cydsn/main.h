@@ -13,6 +13,7 @@
    
 #include "cyapicallbacks.h"
 #include <stdint.h>
+#include <stdlib.h>
         
 #define ON  0
 #define OFF 1
