@@ -14,8 +14,8 @@
 #include "main.h"
 #include "CAN_Stuff.h"
 #include "Sensor_Stuff.h"
-#include "HindsightCAN/CANLibrary.h"
-#include "HindsightCAN/CANScience.h"
+#include "./HindsightCAN/CANLibrary.h"
+#include "./HindsightCAN/CANScience.h"
 
 extern char txData[TX_DATA_SIZE];
 extern uint8 address;

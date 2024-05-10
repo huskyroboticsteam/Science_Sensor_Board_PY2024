@@ -18,7 +18,7 @@
 #include "cyapicallbacks.h"
 #include "CAN_Stuff.h"
 #include "Sensor_Stuff.h"
-#include "HindsightCAN/CANLibrary.h"
+#include "./HindsightCAN/CANLibrary.h"
 
 // LED stuff
 volatile uint8_t CAN_time_LED = 0;
