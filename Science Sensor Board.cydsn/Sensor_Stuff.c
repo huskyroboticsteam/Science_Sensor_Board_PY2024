@@ -30,8 +30,14 @@ int32 ReadSensorCO() {
 }
 
 int32 ReadSensorCO2() {
-    // TODO
-    return 0;
+    // TODO -> I2C Version
+    uint16 val;
+    writeReg16(SCD41_ADDR, REG_Start, 0);
+    readReg16(SCD41_ADDR, REG_Measurement, &val);
+    
+    char buffer[10];
+    DBG_UART_UartPutString(itoa(val, buffer, 10));
+    return val;
 }
 
 int32 ReadSensorCH4() {
@@ -40,13 +46,8 @@ int32 ReadSensorCH4() {
 }
 
 int32 ReadSensorO2() {
-    uint16 val;
-    writeReg16(SCD41_ADDR, REG_Start, 0);
-    readReg16(SCD41_ADDR, REG_Measurement, &val);
-    
-    char buffer[10];
-    DBG_UART_UartPutString(itoa(val, buffer, 10));
-    return val;
+    // TODO
+    return 0;
 }
 
 uint8 readReg16(uint8 addr, uint16 reg, uint16* val) {
