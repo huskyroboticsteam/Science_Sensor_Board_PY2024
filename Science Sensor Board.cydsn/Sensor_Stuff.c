@@ -41,7 +41,8 @@ int32 ReadSensorCH4() {
 
 int32 ReadSensorO2() {
     uint16 val;
-    readReg16(SCD41_ADDR, REG, &val);
+    writeReg16(SCD41_ADDR, REG_Start, 0);
+    readReg16(SCD41_ADDR, REG_Measurement, &val);
     
     char buffer[10];
     DBG_UART_UartPutString(itoa(val, buffer, 10));

@@ -27,7 +27,8 @@ uint8 writeReg16(uint8 addr, uint16 reg, uint16 val);
 
 #define SCD41_ADDR 0x62
 
-#define REG 0xEC05
+#define REG_Start 0x21B1
+#define REG_Measurement 0xEC05
 
 
 /* [] END OF FILE */
