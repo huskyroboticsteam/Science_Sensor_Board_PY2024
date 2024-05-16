@@ -20,6 +20,8 @@ int32 ReadSensorCO2();
 int32 ReadSensorCH4();
 int32 ReadSensorO2();
 
+int32 initializeSensors();
+
 uint8 readReg16(uint8 addr, uint16 reg, uint16* val);
 uint8 writeReg16(uint8 addr, uint16 reg, uint16 val);
 

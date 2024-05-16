@@ -85,6 +85,7 @@ void Initialize(void) {
     Timer_Period_Reset_Start();
 
     isr_Period_Reset_StartEx(Period_Reset_Handler);
+    initializeSensors();
 }
 
 void DebugPrint(char input) {
