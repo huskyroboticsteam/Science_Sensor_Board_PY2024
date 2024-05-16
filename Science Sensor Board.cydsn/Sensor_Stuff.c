@@ -51,6 +51,7 @@ int initializeSensors() {
     return 0;
 }
 
+// read 16 bytes from a 16 bit address
 uint8 readReg16(uint8 addr, uint16 reg, uint32* val) {
     uint8 b1, b2;
     I2C_I2CMasterClearStatus(); //clear the garbage
@@ -68,13 +69,15 @@ uint8 readReg16(uint8 addr, uint16 reg, uint32* val) {
 	return err;
 }
 
+// read 24 bytes from a 16 bit address
 uint8 readReg24(uint8 addr, uint16 reg, uint32* val) {
     uint8 b1, b2, b3;
     I2C_I2CMasterClearStatus(); //clear the garbage
 
 	I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
-	I2C_I2CMasterWriteByte(reg, TIMEOUT);
-	I2C_I2CMasterSendStop(TIMEOUT);
+	I2C_I2CMasterWriteByte(reg >> 8, TIMEOUT);
+    I2C_I2CMasterWriteByte(reg, TIMEOUT);
+	// I2C_I2CMasterSendStop(TIMEOUT);
 	
 	I2C_I2CMasterSendStart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
     I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, &b3, TIMEOUT);
@@ -90,13 +93,16 @@ uint8 writeReg16(uint8 addr, uint16 reg, uint32 val) {
     uint8 b1, b2;
     b1 = val & 0xFF;
     b2 = val >> 8;
+    chk = 
     I2C_I2CMasterClearStatus(); //clear the garbage
     
     I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
-	I2C_I2CMasterWriteByte(reg, TIMEOUT);
+	I2C_I2CMasterWriteByte(reg >> 8, TIMEOUT);
+    I2C_I2CMasterWriteByte(reg & 0xFF, TIMEOUT);
     
     I2C_I2CMasterWriteByte(b2, TIMEOUT);
     I2C_I2CMasterWriteByte(b1, TIMEOUT);
+    I2C_I2CMasterWriteByte(chk, TIMEOUT);
     
     return I2C_I2CMasterSendStop(TIMEOUT);
 }
