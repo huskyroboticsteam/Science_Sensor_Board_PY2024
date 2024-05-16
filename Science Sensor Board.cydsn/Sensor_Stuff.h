@@ -26,6 +26,8 @@ uint8 readReg16(uint8 addr, uint16 reg, uint32* val);
 uint8 readReg24(uint8 addr, uint16 reg, uint32* val);
 uint8 writeReg16(uint8 addr, uint16 reg, uint32 val);
 
+uint8_t sensirion_common_generate_crc(const uint8_t* data, uint16_t count)
+
 #define TIMEOUT 20
 
 #define SCD41_ADDR 0x62

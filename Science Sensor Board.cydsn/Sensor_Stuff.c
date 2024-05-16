@@ -93,7 +93,7 @@ uint8 writeReg16(uint8 addr, uint16 reg, uint32 val) {
     uint8 b1, b2;
     b1 = val & 0xFF;
     b2 = val >> 8;
-    chk = 
+    uint8_t chk = sensirion_common_generate_crc((uint8_t*)val, 2);
     I2C_I2CMasterClearStatus(); //clear the garbage
     
     I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
@@ -105,5 +105,23 @@ uint8 writeReg16(uint8 addr, uint16 reg, uint32 val) {
     I2C_I2CMasterWriteByte(chk, TIMEOUT);
     
     return I2C_I2CMasterSendStop(TIMEOUT);
+}
+#define CRC8_POLYNOMIAL 0x31
+#define CRC8_INIT 0xff
+uint8_t sensirion_common_generate_crc(const uint8_t* data, uint16_t count) {
+    uint16_t current_byte;
+    uint8_t crc = CRC8_INIT;
+    uint8_t crc_bit;
+    /* calculates 8-Bit checksum with given polynomial */
+    for (current_byte = 0; current_byte < count; ++current_byte) {
+    crc ^= (data[current_byte]);
+    for (crc_bit = 8; crc_bit > 0; --crc_bit) {
+        if (crc & 0x80)
+            crc = (crc << 1) ^ CRC8_POLYNOMIAL;
+        else
+            crc = (crc << 1);
+        }
+    }
+    return crc;
 }
 /* [] END OF FILE */
