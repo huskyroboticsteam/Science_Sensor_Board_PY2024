@@ -44,14 +44,10 @@ CY_ISR(Period_Reset_Handler) {
     }
 }
 
-CY_ISR(Button_1_Handler) {
-    LED_DBG_Write(!LED_DBG_Read());
-}
-
 int main(void)
 { 
-    printf("Hello World\r\n");
     Initialize();
+    
     int err;
     
     for(;;)
@@ -88,7 +84,6 @@ void Initialize(void) {
     InitCAN(DEVICE_GROUP_SCIENCE, (int)address);
     Timer_Period_Reset_Start();
 
-    isr_Button_1_StartEx(Button_1_Handler);
     isr_Period_Reset_StartEx(Period_Reset_Handler);
 }
 
