@@ -20,10 +20,11 @@ int32 ReadSensorCO2();
 int32 ReadSensorCH4();
 int32 ReadSensorO2();
 
-int32 initializeSensors();
+int initializeSensors();
 
-uint8 readReg16(uint8 addr, uint16 reg, uint16* val);
-uint8 writeReg16(uint8 addr, uint16 reg, uint16 val);
+uint8 readReg16(uint8 addr, uint16 reg, uint32* val);
+uint8 readReg24(uint8 addr, uint16 reg, uint32* val);
+uint8 writeReg16(uint8 addr, uint16 reg, uint32 val);
 
 #define TIMEOUT 20
 
