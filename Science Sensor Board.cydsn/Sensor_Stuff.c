@@ -14,6 +14,8 @@
 #include "cyapicallbacks.h"
 #include "Sensor_Stuff.h"
 
+char txData[TX_DATA_SIZE];
+
 int32 ReadSensorTemperature() {
     // TODO
     return 0;
@@ -31,9 +33,9 @@ int32 ReadSensorCO() {
 
 int32 ReadSensorCO2() {
     // TODO -> I2C Version
-    uint32 val;
-    readReg24(SCD41_ADDR, REG_Measurement, &val);
-    return val;
+    uint16 val;
+    readReg16crc(SCD41_ADDR, REG_Measurement, &val);
+    return (int32) val;
 }
 
 int32 ReadSensorCH4() {
@@ -52,7 +54,7 @@ int initializeSensors() {
 }
 
 // read 16 bytes from a 16 bit address
-uint8 readReg16(uint8 addr, uint16 reg, uint32* val) {
+uint8 readReg16(uint8 addr, uint16 reg, uint16* val) {
     uint8 b1, b2;
     I2C_I2CMasterClearStatus(); //clear the garbage
 
@@ -69,31 +71,36 @@ uint8 readReg16(uint8 addr, uint16 reg, uint32* val) {
 	return err;
 }
 
-// read 24 bytes from a 16 bit address
-uint8 readReg24(uint8 addr, uint16 reg, uint32* val) {
-    uint8 b1, b2, b3;
+// read 16 bytes from a 16 bit address, with crc
+uint8 readReg16crc(uint8 addr, uint16 reg, uint16* val) {
+    uint8 b1, b2, crc;
     I2C_I2CMasterClearStatus(); //clear the garbage
 
 	I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
 	I2C_I2CMasterWriteByte(reg >> 8, TIMEOUT);
     I2C_I2CMasterWriteByte(reg, TIMEOUT);
 	// I2C_I2CMasterSendStop(TIMEOUT);
+    CyDelay(1);
 	
 	I2C_I2CMasterSendStart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
-    I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, &b3, TIMEOUT);
-	I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, &b2, TIMEOUT);
-    I2C_I2CMasterReadByte(I2C_I2C_NAK_DATA, &b1, TIMEOUT);
+    I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, &b2, TIMEOUT);
+	I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, &b1, TIMEOUT);
+    I2C_I2CMasterReadByte(I2C_I2C_NAK_DATA, &crc, TIMEOUT);
+    PrintInt(crc);
+    Print("\r\n");
     
     int err = I2C_I2CMasterSendStop(TIMEOUT);
-    *val = ((uint16) b3 << 16) |((uint16) b2 << 8) | b1;
+    *val = ((uint16) b2 << 8) | b1;
 	return err;
 }
 
-uint8 writeReg16(uint8 addr, uint16 reg, uint32 val) {
+uint8 writeReg16(uint8 addr, uint16 reg, uint16 val) {
     uint8 b1, b2;
     b1 = val & 0xFF;
     b2 = val >> 8;
-    uint8_t chk = sensirion_common_generate_crc((uint8_t*)val, 2);
+    
+    uint8_t data[2] = {b1, b2};
+    uint8_t chk = sensirion_common_generate_crc(data, 2);
     I2C_I2CMasterClearStatus(); //clear the garbage
     
     I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
