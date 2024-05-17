@@ -24,6 +24,7 @@ int initializeSensors();
 
 uint8 readReg16(uint8 addr, uint16 reg, uint16* val);
 uint8 readReg16crc(uint8 addr, uint16 reg, uint16* val);
+uint8 writeReg0(uint8 addr, uint16 reg);
 uint8 writeReg16(uint8 addr, uint16 reg, uint16 val);
 
 uint8_t sensirion_common_generate_crc(const uint8_t* data, uint16_t count);

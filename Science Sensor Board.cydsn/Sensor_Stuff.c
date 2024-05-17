@@ -49,7 +49,7 @@ int32 ReadSensorO2() {
 }
 
 int initializeSensors() {
-    writeReg16(SCD41_ADDR, REG_Start, 0); //Starting periodic sensor for CO2
+    writeReg0(SCD41_ADDR, REG_Start); //Starting periodic sensor for CO2
     return 0;
 }
 
@@ -62,7 +62,7 @@ uint8 readReg16(uint8 addr, uint16 reg, uint16* val) {
 	I2C_I2CMasterWriteByte(reg, TIMEOUT);
 	I2C_I2CMasterSendStop(TIMEOUT);
 	
-	I2C_I2CMasterSendStart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
+	I2C_I2CMasterSendRestart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
 	I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, &b2, TIMEOUT);
     I2C_I2CMasterReadByte(I2C_I2C_NAK_DATA, &b1, TIMEOUT);
     
@@ -73,26 +73,42 @@ uint8 readReg16(uint8 addr, uint16 reg, uint16* val) {
 
 // read 16 bytes from a 16 bit address, with crc
 uint8 readReg16crc(uint8 addr, uint16 reg, uint16* val) {
-    uint8 b1, b2, crc;
+    uint8 data[3];
     I2C_I2CMasterClearStatus(); //clear the garbage
 
 	I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
 	I2C_I2CMasterWriteByte(reg >> 8, TIMEOUT);
-    I2C_I2CMasterWriteByte(reg, TIMEOUT);
+    I2C_I2CMasterWriteByte(reg & 0xFF, TIMEOUT);
 	// I2C_I2CMasterSendStop(TIMEOUT);
-    CyDelay(1);
+    // CyDelay(10);
 	
-	I2C_I2CMasterSendStart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
-    I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, &b2, TIMEOUT);
-	I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, &b1, TIMEOUT);
-    I2C_I2CMasterReadByte(I2C_I2C_NAK_DATA, &crc, TIMEOUT);
-    PrintInt(crc);
-    Print("\r\n");
+	I2C_I2CMasterSendRestart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
+    I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, data, TIMEOUT);
+	I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, data+1, TIMEOUT);
+    I2C_I2CMasterReadByte(I2C_I2C_NAK_DATA, data+2, TIMEOUT);
     
     int err = I2C_I2CMasterSendStop(TIMEOUT);
-    *val = ((uint16) b2 << 8) | b1;
+    *val = ((uint16) data[0] << 8) | data[1];
+    Print("CRC from device: ");
+    PrintInt(data[2]);
+    Print("\r\nCalculated CRC: ");
+    PrintInt(sensirion_common_generate_crc(data, 2));
+    Print("\r\n");
+    
 	return err;
 }
+
+// write no bytes to a register
+uint8 writeReg0(uint8 addr, uint16 reg) {
+    I2C_I2CMasterClearStatus(); //clear the garbage
+    
+    I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
+	I2C_I2CMasterWriteByte(reg >> 8, TIMEOUT);
+    I2C_I2CMasterWriteByte(reg & 0xFF, TIMEOUT);
+    
+    return I2C_I2CMasterSendStop(TIMEOUT);
+}
+
 
 uint8 writeReg16(uint8 addr, uint16 reg, uint16 val) {
     uint8 b1, b2;

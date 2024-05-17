@@ -50,10 +50,11 @@ int main(void)
     
     int err;
     
-    uint16 temp;
-    readReg16crc(SCD41_ADDR, 0x3682, &temp);
-    PrintInt(temp);
-    Print("/r/n");
+    // uint16 temp;
+    // readReg16crc(SCD41_ADDR, 0x3682, &temp);
+    // Print("Device SN: ");
+    // PrintInt(temp);
+    // Print("\r\n");
     
     for(;;)
     {
@@ -81,7 +82,7 @@ void Initialize(void) {
     address = 0; // TODO replace with science sensor address
     
     DBG_UART_Start();
-    sprintf(txData, "Address: %x \r\n", address);
+    sprintf(txData, "\r\nAddress: %x \r\n", address);
     Print(txData);
     
     LED_DBG_Write(0);
