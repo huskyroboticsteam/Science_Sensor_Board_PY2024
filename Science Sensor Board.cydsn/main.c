@@ -77,21 +77,30 @@ int main(void)
 }
 
 void Initialize(void) {
+    uint32 err;
     CyGlobalIntEnable; /* Enable global interrupts. LED arrays need this first */
+    
+    sprintf(txData, "\r\nHello\r\n");
+    Print(txData);
     
     address = 0; // TODO replace with science sensor address
     
     DBG_UART_Start();
-    sprintf(txData, "\r\nAddress: %x \r\n", address);
+    I2C_Start();
+    InitCAN(DEVICE_GROUP_SCIENCE, (int) address);
+    Timer_Period_Reset_Start();
+    isr_Period_Reset_StartEx(Period_Reset_Handler);
+    
+    sprintf(txData, "Address: %x \r\n", address);
     Print(txData);
     
     LED_DBG_Write(0);
-    
-    InitCAN(DEVICE_GROUP_SCIENCE, (int)address);
-    Timer_Period_Reset_Start();
-
-    isr_Period_Reset_StartEx(Period_Reset_Handler);
-    initializeSensors();
+    err = initializeSensors();
+    if (err) {
+        Print("Failed sensor init: ");
+        PrintInt(err);
+        Print("\r\n");
+    }
 }
 
 void DebugPrint(char input) {

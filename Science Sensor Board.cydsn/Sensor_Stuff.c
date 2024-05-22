@@ -34,7 +34,13 @@ int32 ReadSensorCO() {
 int32 ReadSensorCO2() {
     // TODO -> I2C Version
     uint16 val;
-    readReg16crc(SCD41_ADDR, REG_Measurement, &val);
+    uint32 err = readReg16crc(SCD41_ADDR, REG_Measurement, &val);
+    if (err) {
+        Print("Failed to read: ");
+        PrintInt(err);
+        Print("\r\n");
+        return 0xFFFFFFFF;
+    }
     return (int32) val;
 }
 
@@ -48,69 +54,95 @@ int32 ReadSensorO2() {
     return 0;
 }
 
-int initializeSensors() {
-    writeReg0(SCD41_ADDR, REG_Start); //Starting periodic sensor for CO2
-    return 0;
+uint32 initializeSensors() {
+    return writeReg0(SCD41_ADDR, REG_Start); //Starting periodic sensor for CO2
 }
 
 // read 16 bytes from a 16 bit address
-uint8 readReg16(uint8 addr, uint16 reg, uint16* val) {
-    uint8 b1, b2;
+uint32 readReg16(uint8 addr, uint16 reg, uint16* val) {
+    uint32 err;
+    uint8 data[2];
     I2C_I2CMasterClearStatus(); //clear the garbage
 
-	I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
+	err = I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
+    if (err) {
+        I2C_I2CMasterSendStop(TIMEOUT);
+        return err;
+    }
 	I2C_I2CMasterWriteByte(reg, TIMEOUT);
 	I2C_I2CMasterSendStop(TIMEOUT);
 	
-	I2C_I2CMasterSendRestart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
-	I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, &b2, TIMEOUT);
-    I2C_I2CMasterReadByte(I2C_I2C_NAK_DATA, &b1, TIMEOUT);
+	err = I2C_I2CMasterSendRestart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
+    if (err) {
+        I2C_I2CMasterSendStop(TIMEOUT);
+        return err;
+    }
+	I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, data, TIMEOUT);
+    I2C_I2CMasterReadByte(I2C_I2C_NAK_DATA, data+1, TIMEOUT);
+    I2C_I2CMasterSendStop(TIMEOUT);
     
-    int err = I2C_I2CMasterSendStop(TIMEOUT);
-    *val = ((uint16) b2 << 8) | b1;
-	return err;
+    *val = ((uint16) data[0] << 8) | data[1];
+	return 0;
 }
 
 // read 16 bytes from a 16 bit address, with crc
-uint8 readReg16crc(uint8 addr, uint16 reg, uint16* val) {
+uint32 readReg16crc(uint8 addr, uint16 reg, uint16* val) {
     uint8 data[3];
+    uint32 err;
     I2C_I2CMasterClearStatus(); //clear the garbage
-
-	I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
+    
+    I2C_I2C_MSTR_ERR_LB_NAK;
+    I2C_I2C_MSTR_NOT_READY;
+    
+	err = I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
+    if (err) {
+        I2C_I2CMasterSendStop(TIMEOUT);
+        return err;
+    }
 	I2C_I2CMasterWriteByte(reg >> 8, TIMEOUT);
     I2C_I2CMasterWriteByte(reg & 0xFF, TIMEOUT);
 	// I2C_I2CMasterSendStop(TIMEOUT);
-    // CyDelay(10);
+    // CyDelay(5);
 	
-	I2C_I2CMasterSendRestart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
+	err = I2C_I2CMasterSendRestart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
+    if (err) {
+        I2C_I2CMasterSendStop(TIMEOUT);
+        return err;
+    }
     I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, data, TIMEOUT);
 	I2C_I2CMasterReadByte(I2C_I2C_ACK_DATA, data+1, TIMEOUT);
     I2C_I2CMasterReadByte(I2C_I2C_NAK_DATA, data+2, TIMEOUT);
+    I2C_I2CMasterSendStop(TIMEOUT);
     
-    int err = I2C_I2CMasterSendStop(TIMEOUT);
+    uint8 crc = sensirion_common_generate_crc(data, 2);
+    if (crc != data[2]) {
+        Print("CRC mismatch, expected ");
+        PrintInt(crc);
+        Print(" got ");
+        PrintInt(data[2]);
+        Print("\r\n");
+    }
+    
     *val = ((uint16) data[0] << 8) | data[1];
-    Print("CRC from device: ");
-    PrintInt(data[2]);
-    Print("\r\nCalculated CRC: ");
-    PrintInt(sensirion_common_generate_crc(data, 2));
-    Print("\r\n");
-    
-	return err;
+	return 0;
 }
 
 // write no bytes to a register
-uint8 writeReg0(uint8 addr, uint16 reg) {
+uint32 writeReg0(uint8 addr, uint16 reg) {
     I2C_I2CMasterClearStatus(); //clear the garbage
     
-    I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
-	I2C_I2CMasterWriteByte(reg >> 8, TIMEOUT);
+    uint32 err = I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
+    if (err) {
+        I2C_I2CMasterSendStop(TIMEOUT);
+        return err;
+    }
+    I2C_I2CMasterWriteByte(reg >> 8, TIMEOUT);
     I2C_I2CMasterWriteByte(reg & 0xFF, TIMEOUT);
-    
-    return I2C_I2CMasterSendStop(TIMEOUT);
+    I2C_I2CMasterSendStop(TIMEOUT);
+    return 0;
 }
 
-
-uint8 writeReg16(uint8 addr, uint16 reg, uint16 val) {
+uint32 writeReg16(uint8 addr, uint16 reg, uint16 val) {
     uint8 b1, b2;
     b1 = val & 0xFF;
     b2 = val >> 8;
@@ -129,6 +161,7 @@ uint8 writeReg16(uint8 addr, uint16 reg, uint16 val) {
     
     return I2C_I2CMasterSendStop(TIMEOUT);
 }
+
 #define CRC8_POLYNOMIAL 0x31
 #define CRC8_INIT 0xff
 uint8_t sensirion_common_generate_crc(const uint8_t* data, uint16_t count) {

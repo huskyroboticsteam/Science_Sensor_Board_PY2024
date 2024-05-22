@@ -25,8 +25,8 @@
     <Group key="Pin">
       <Data key="1e8842ba-71ab-4752-acd5-c7b9575c6400" value="DIP4" />
       <Data key="2a7b9377-17d7-4086-b420-5d26b01bb37d" value="SWCLK" />
-      <Data key="3dbba19d-7851-4a83-b204-a0a386fe8d68/5382e105-1382-4a2e-b9f4-3bb2feba71e0" value="IMU_I2C_sda" />
-      <Data key="3dbba19d-7851-4a83-b204-a0a386fe8d68/22863ebe-a37b-476f-b252-6e49a8c00b12" value="IMU_I2C_scl" />
+      <Data key="3dbba19d-7851-4a83-b204-a0a386fe8d68/5382e105-1382-4a2e-b9f4-3bb2feba71e0" value="I2C_sda" />
+      <Data key="3dbba19d-7851-4a83-b204-a0a386fe8d68/22863ebe-a37b-476f-b252-6e49a8c00b12" value="I2C_scl" />
       <Data key="8d318d8b-cf7b-4b6b-b02c-ab1c5c49d0ba" value="DIP1" />
       <Data key="43ec2fa1-bf22-4b71-9477-b6ca7b97f0b0/23b8206d-1c77-4e61-be4a-b4037d5de5fc" value="GPS_UART_tx" />
       <Data key="43ec2fa1-bf22-4b71-9477-b6ca7b97f0b0/78e33e5d-45ea-4b75-88d5-73274e8a7ce4" value="GPS_UART_rx" />
@@ -39,6 +39,7 @@
       <Data key="a6b71814-8c99-4b2e-9c66-2e83029c3d9c/23b8206d-1c77-4e61-be4a-b4037d5de5fc" value="DEBUG_tx" />
       <Data key="a6b71814-8c99-4b2e-9c66-2e83029c3d9c/78e33e5d-45ea-4b75-88d5-73274e8a7ce4" value="DEBUG_rx" />
       <Data key="aa58a004-c402-40e0-9ff5-87b032aba07d" value="Button_1" />
+      <Data key="ac0a33be-7097-4ab3-bbc9-3dfa0c17079a" value="Vddio" />
       <Data key="b84dbcf6-f26d-44a5-801d-09d588384840" value="IMU_RST" />
       <Data key="b561a610-e1ca-4f8c-9281-59a70030b09c/23b8206d-1c77-4e61-be4a-b4037d5de5fc" value="DBG_UART_tx" />
       <Data key="b561a610-e1ca-4f8c-9281-59a70030b09c/78e33e5d-45ea-4b75-88d5-73274e8a7ce4" value="DBG_UART_rx" />
@@ -3952,6 +3953,11 @@
       </Group>
     </Group>
     <Group key="aa58a004-c402-40e0-9ff5-87b032aba07d">
+      <Group key="0">
+        <Data key="Port Format" value="0,7" />
+      </Group>
+    </Group>
+    <Group key="ac0a33be-7097-4ab3-bbc9-3dfa0c17079a">
       <Group key="0">
         <Data key="Port Format" value="0,7" />
       </Group>
