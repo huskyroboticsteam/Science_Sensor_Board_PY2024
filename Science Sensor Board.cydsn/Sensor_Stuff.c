@@ -36,7 +36,8 @@ int32 ReadSensorCO2() {
     uint16 val;
     
     // uint32 err = readReg16crc(SCD41_ADDR, SCD41_REG_get_ambient_pressure, &val);
-    uint32 err = readReg16crc(SCD41_ADDR, SCD41_REG_read_measurement, &val);
+    //uint32 err = readReg16crc(SCD41_ADDR, SCD41_REG_read_measurement, &val);
+    uint32 err = readReg16crc(SCD41_ADDR, SCD41_REG_get_temperature_offset, &val);
     if (err) {
         Print("Failed to read: ");
         PrintInt(err);
