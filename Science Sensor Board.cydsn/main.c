@@ -50,11 +50,11 @@ int main(void)
     
     int err;
     
-    uint16 temp;
-    readReg16crc(SCD41_ADDR, 0x3682, &temp);
-    Print("Device SN: ");
-    PrintInt(temp);
-    Print("\r\n");
+    // uint16 temp;
+    // readReg16crc(SCD41_ADDR, 0x3682, &temp);
+    // Print("Device SN: ");
+    // PrintInt(temp);
+    // Print("\r\n");
     
     for(;;)
     {
