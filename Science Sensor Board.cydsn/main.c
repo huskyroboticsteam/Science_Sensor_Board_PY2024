@@ -50,11 +50,11 @@ int main(void)
     
     int err;
     
-    // uint16 temp;
-    // readReg16crc(SCD41_ADDR, 0x3682, &temp);
-    // Print("Device SN: ");
-    // PrintInt(temp);
-    // Print("\r\n");
+    uint16 temp;
+    readReg16crc(SCD41_ADDR, 0x3682, &temp);
+    Print("Device SN: ");
+    PrintInt(temp);
+    Print("\r\n");
     
     for(;;)
     {
@@ -95,6 +95,8 @@ void Initialize(void) {
     Print(txData);
     
     LED_DBG_Write(0);
+    
+    CyDelay(30); // ensure sensors are initialized
     err = initializeSensors();
     if (err) {
         Print("Failed sensor init: ");
@@ -104,6 +106,7 @@ void Initialize(void) {
 }
 
 void DebugPrint(char input) {
+    uint16 val = -1;
     switch(input) {
         case 't':
             sprintf(txData, "Temp: %li", ReadSensorTemperature());
@@ -122,6 +125,12 @@ void DebugPrint(char input) {
             break;
         case 'm':
             sprintf(txData, "CH4: %li", ReadSensorCH4());
+            break;
+        case ' ':
+            // readReg16crc(SCD41_ADDR, SCD41_REG_get_data_ready_status, &val);
+            // sprintf(txData, "Data Ready: %X", val);
+            writeReg0(SCD41_ADDR, SCD41_REG_perform_forced_recalibration);
+            sprintf(txData, "Cal");
             break;
         default:
             sprintf(txData, "what");

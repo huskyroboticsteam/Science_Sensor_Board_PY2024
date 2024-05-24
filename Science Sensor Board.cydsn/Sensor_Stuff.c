@@ -34,7 +34,9 @@ int32 ReadSensorCO() {
 int32 ReadSensorCO2() {
     // TODO -> I2C Version
     uint16 val;
-    uint32 err = readReg16crc(SCD41_ADDR, REG_Measurement, &val);
+    
+    // uint32 err = readReg16crc(SCD41_ADDR, SCD41_REG_get_ambient_pressure, &val);
+    uint32 err = readReg16crc(SCD41_ADDR, SCD41_REG_read_measurement, &val);
     if (err) {
         Print("Failed to read: ");
         PrintInt(err);
@@ -55,7 +57,11 @@ int32 ReadSensorO2() {
 }
 
 uint32 initializeSensors() {
-    return writeReg0(SCD41_ADDR, REG_Start); //Starting periodic sensor for CO2
+    // writeReg0(SCD41_ADDR, SCD41_REG_wake_up);
+    writeReg0(SCD41_ADDR, SCD41_REG_stop_periodic_measurement); //Starting periodic sensor for CO2
+    CyDelay(500);
+    return writeReg0(SCD41_ADDR, SCD41_REG_start_periodic_measurement); //Starting periodic sensor for CO2
+    // return 0;
 }
 
 // read 16 bytes from a 16 bit address
@@ -102,7 +108,16 @@ uint32 readReg16crc(uint8 addr, uint16 reg, uint16* val) {
 	I2C_I2CMasterWriteByte(reg >> 8, TIMEOUT);
     I2C_I2CMasterWriteByte(reg & 0xFF, TIMEOUT);
 	// I2C_I2CMasterSendStop(TIMEOUT);
-    // CyDelay(5);
+
+    
+    // err = I2C_I2CMasterWriteBuf(addr, (uint8*) &reg, 2, I2C_I2C_MODE_COMPLETE_XFER);
+    // if (err) return err;
+    CyDelay(1);
+    // err = I2C_I2CMasterReadBuf(addr, data, 3, I2C_I2C_MODE_COMPLETE_XFER);
+    // if (err) return err;
+    
+    
+    
 	
 	err = I2C_I2CMasterSendRestart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
     if (err) {
@@ -142,22 +157,23 @@ uint32 writeReg0(uint8 addr, uint16 reg) {
     return 0;
 }
 
-uint32 writeReg16(uint8 addr, uint16 reg, uint16 val) {
-    uint8 b1, b2;
-    b1 = val & 0xFF;
-    b2 = val >> 8;
+uint32 writeReg16(uint8 addr, uint16 reg, uint16 val) {    
+    uint8_t data[2] = {val >> 8, val & 0xFF};
+    uint8_t crc = sensirion_common_generate_crc(data, 2);
     
-    uint8_t data[2] = {b1, b2};
-    uint8_t chk = sensirion_common_generate_crc(data, 2);
     I2C_I2CMasterClearStatus(); //clear the garbage
     
     I2C_I2CMasterSendStart(addr, I2C_I2C_WRITE_XFER_MODE, TIMEOUT);
 	I2C_I2CMasterWriteByte(reg >> 8, TIMEOUT);
     I2C_I2CMasterWriteByte(reg & 0xFF, TIMEOUT);
     
-    I2C_I2CMasterWriteByte(b2, TIMEOUT);
-    I2C_I2CMasterWriteByte(b1, TIMEOUT);
-    I2C_I2CMasterWriteByte(chk, TIMEOUT);
+    // I2C_I2CMasterWriteBuf(addr, (uint8*) &reg, 16, I2C_I2C_MODE_COMPLETE_XFER);
+    
+    I2C_I2CMasterWriteByte(data[0], TIMEOUT);
+    I2C_I2CMasterWriteByte(data[1], TIMEOUT);
+    I2C_I2CMasterWriteByte(crc, TIMEOUT);
+    
+    // I2C_I2CMasterWriteBuf(addr, (uint8*) &reg, 16, I2C_I2C_MODE_COMPLETE_XFER);
     
     return I2C_I2CMasterSendStop(TIMEOUT);
 }
