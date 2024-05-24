@@ -57,8 +57,8 @@ int32 ReadSensorO2() {
 }
 
 uint32 initializeSensors() {
-    // writeReg0(SCD41_ADDR, SCD41_REG_wake_up);
-    writeReg0(SCD41_ADDR, SCD41_REG_stop_periodic_measurement); //Starting periodic sensor for CO2
+    writeReg0(SCD41_ADDR, SCD41_REG_wake_up);
+    // writeReg0(SCD41_ADDR, SCD41_REG_stop_periodic_measurement); //Starting periodic sensor for CO2
     CyDelay(500);
     return writeReg0(SCD41_ADDR, SCD41_REG_start_periodic_measurement); //Starting periodic sensor for CO2
     // return 0;
@@ -107,18 +107,12 @@ uint32 readReg16crc(uint8 addr, uint16 reg, uint16* val) {
     }
 	I2C_I2CMasterWriteByte(reg >> 8, TIMEOUT);
     I2C_I2CMasterWriteByte(reg & 0xFF, TIMEOUT);
-	// I2C_I2CMasterSendStop(TIMEOUT);
-
     
     // err = I2C_I2CMasterWriteBuf(addr, (uint8*) &reg, 2, I2C_I2C_MODE_COMPLETE_XFER);
     // if (err) return err;
-    CyDelay(1);
     // err = I2C_I2CMasterReadBuf(addr, data, 3, I2C_I2C_MODE_COMPLETE_XFER);
     // if (err) return err;
     
-    
-    
-	
 	err = I2C_I2CMasterSendRestart(addr, I2C_I2C_READ_XFER_MODE, TIMEOUT);
     if (err) {
         I2C_I2CMasterSendStop(TIMEOUT);

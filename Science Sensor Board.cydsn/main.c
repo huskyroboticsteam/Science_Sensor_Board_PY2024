@@ -127,10 +127,10 @@ void DebugPrint(char input) {
             sprintf(txData, "CH4: %li", ReadSensorCH4());
             break;
         case ' ':
-            // readReg16crc(SCD41_ADDR, SCD41_REG_get_data_ready_status, &val);
-            // sprintf(txData, "Data Ready: %X", val);
-            writeReg0(SCD41_ADDR, SCD41_REG_perform_forced_recalibration);
-            sprintf(txData, "Cal");
+            readReg16crc(SCD41_ADDR, SCD41_REG_get_data_ready_status, &val);
+            sprintf(txData, "Data Ready: %X", val);
+            // writeReg0(SCD41_ADDR, SCD41_REG_perform_forced_recalibration);
+            // sprintf(txData, "Cal");
             break;
         default:
             sprintf(txData, "what");
